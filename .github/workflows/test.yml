@@ -31,4 +31,4 @@ jobs:
             sudo docker stop create_restaurant_service || true
             sudo docker rm create_restaurant_service || true
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/create_restaurant_service:latest
-            sudo docker run -d --restart always -p 3000:3000 --name create_restaurant_service ${{ secrets.DOCKER_USERNAME }}/create_restaurant_service:latest
+            sudo docker run -d --env-file /home/ec2-user/.env --restart always -p 3000:3000 --name create_restaurant_service ${{ secrets.DOCKER_USERNAME }}/create_restaurant_service:latest
