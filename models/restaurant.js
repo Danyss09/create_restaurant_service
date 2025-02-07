@@ -17,17 +17,19 @@ restaurantSchema.pre('save', async function (next) {
   if (this.isNew) {
     try {
       const counter = await Counter.findByIdAndUpdate(
-        { _id: 'restaurantId' },
-        { $inc: { sequence_value: 1 } },
-        { new: true, upsert: true }  // Crea el contador si no existe
+        { _id: 'restaurantId' },        // Usamos 'restaurantId' como ID del contador
+        { $inc: { sequence_value: 1 } }, // Incrementamos en 1
+        { new: true, upsert: true }      // Crea el contador si no existe
       );
-      this._id = counter.sequence_value;
+
+      this._id = counter.sequence_value; // Asignamos el nuevo valor del contador
     } catch (error) {
       return next(error);
     }
   }
   next();
 });
+
 
 // **CORRECCIÓN:** Asegúrate de definir el modelo antes de exportarlo
 const Restaurant = mongoose.model('Restaurant', restaurantSchema, 'restaurants');
