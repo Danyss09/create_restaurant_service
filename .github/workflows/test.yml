@@ -1,0 +1,34 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - test  # Se ejecutará solo cuando hagas push a la rama 'test'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v2
+
+      - name: Login en Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Construir y subir imagen a Docker Hub
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/create_restaurant_service:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/create_restaurant_service:latest
+
+      - name: Conectar a AWS EC2 y desplegar
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo docker stop create_restaurant_service || true
+            sudo docker rm create_restaurant_service || true
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/create_restaurant_service:latest
+            sudo docker run -d --restart always -p 3000:3000 --name create_restaurant_service ${{ secrets.DOCKER_USERNAME }}/create_restaurant_service:latest
