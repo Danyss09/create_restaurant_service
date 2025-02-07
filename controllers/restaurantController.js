@@ -1,31 +1,23 @@
+// controllers/restaurantController.js
 const Restaurant = require('../models/restaurant');
-const { validatePhoneNumber, validateName, validateAddress } = require('../utils/validation');
+const Counter = require('../models/counter');  // Importar el modelo del contador
 
-// Función para crear un restaurante
-const createRestaurant = async (req, res) => {
-  const { name, address, phone } = req.body;
-
-  // Validar los datos
-  if (!validateName(name)) {
-    return res.status(400).json({ error: 'El nombre solo puede contener letras y espacios.' });
-  }
-
-  if (!validateAddress(address)) {
-    return res.status(400).json({ error: 'La dirección solo puede contener letras, números y comas.' });
-  }
-
-  if (!validatePhoneNumber(phone)) {
-    return res.status(400).json({ error: 'El teléfono debe tener 10 números.' });
-  }
-
-  // Si todo es válido, crear el restaurante
+exports.createRestaurant = async (req, res) => {
   try {
+    const { name, address, phone } = req.body;
+
+    // Obtener e incrementar el contador para restaurantes
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: 'restaurantId' },
+      { $inc: { sequence_value: 1 } }, // Incrementar en 1
+      { new: true, upsert: true }      // Crear si no existe
+    );
+
     const newRestaurant = new Restaurant({
+      _id: counter.sequence_value,    // Asignar el ID incrementado
       name,
       address,
-      phone,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      phone
     });
 
     await newRestaurant.save();
@@ -33,8 +25,4 @@ const createRestaurant = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
-};
-
-module.exports = {
-  createRestaurant
 };
