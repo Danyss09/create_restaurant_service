@@ -12,9 +12,9 @@ const app = express();
 app.use(bodyParser.json());
 
 // Conectar a MongoDB
-console.log('🌍 MongoDB URI:', process.env.MONGO_URI);  // ✅ Imprime la URL de conexión
+console.log('🌍 MongoDB URI:', process.env.MONGODB_URI);  // ✅ Imprime la URL de conexión
 
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
