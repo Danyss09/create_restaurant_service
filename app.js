@@ -4,10 +4,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const Restaurant = require('./models/restaurant');
+const cors = require('cors');
 
 // Inicializar la aplicación Express
 const app = express();
-
+app.use(cors());
 // Middleware para parsear el cuerpo de las peticiones
 app.use(bodyParser.json());
 
